@@ -1,11 +1,11 @@
-# Dockerfile
-FROM python:3.10-slim
+# Use official Python image
+FROM python:3.9
 
+# Set working directory
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt || true
-
+# Copy files
 COPY . .
 
+# Run the script
 CMD ["python", "main.py"]

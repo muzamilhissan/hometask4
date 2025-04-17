@@ -1,39 +1,46 @@
-name: CI Pipeline - Python
+name: Python CI  # Name of the workflow
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]       # Triggers workflow on push to main
   pull_request:
-    branches: [ main ]
+    branches: [ main ]       # Triggers workflow on PR to main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest   # Run this job on a virtual machine with Ubuntu
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # Step 1: Checkout your code from GitHub repo
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    # Step 2: Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'  # You can use other versions like 3.10, etc.
 
-      - name: Install flake8
-        run: pip install flake8
+    # Step 3: Install Flake8 (Python linter)
+    - name: Install Flake8
+      run: pip install flake8
 
-      - name: Lint code
-        run: flake8 .
+    # Step 4: Run linting on your code
+    - name: Lint code
+      run: flake8 . --max-line-length=120
+      # This checks all Python files for syntax/style issues
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    # Step 5: Log in to Docker Hub using your GitHub Secrets
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/my-python-app:latest
+    # Step 6: Build the Docker image
+    - name: Build Docker image
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/python-ci-app .
+
+    # Step 7: Push Docker image to Docker Hub
+    - name: Push Docker image
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/python-ci-app
